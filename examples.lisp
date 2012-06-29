@@ -8,13 +8,13 @@
 
 (defun example-char0 ()
   (let* ((d (power-series::make-power-series/polynomial
-             1 0 0 0 1 0 1))
+             1 0 0 0 0 1 1))
          (cq (complete-quotients d)))
-    (cq-period cq 50)))
+    (cq-period cq 70)))
 
 (defun example-charp (p)
    (let* ((d (finite-fields:with-modulus (p)
                (power-series::make-power-series/polynomial
-              1 0 0 0 1 0 1)))
+              1 0 0 0 0 1 1)))
          (cq (complete-quotients d)))
-    (cq-period cq 50)))
+    (cq-period cq 500)))
