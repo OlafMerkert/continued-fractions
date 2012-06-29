@@ -1,4 +1,4 @@
 (defsystem continued-fractions
   :serial t
   :depends-on (ol-utils math-utils)
-  :components ())
+  :components ((:file "cf-power-series")))
