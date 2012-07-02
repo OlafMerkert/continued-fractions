@@ -32,3 +32,8 @@
          (cq (complete-quotients d)))
     (cq-quasi-period cq 500)))
 
+(defun time-char0 ()
+  (dolist (i '(10 20 30 40 50 60 70 80 90))
+    (format t "~A~%~%" i)
+    (time (example-char0 i))
+    (force-output t)))
