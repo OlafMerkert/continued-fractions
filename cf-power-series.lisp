@@ -29,3 +29,17 @@ quotients."
                (lazy-aref cq i))
        do (return i)
        finally (return nil))))
+
+(defun cq-quasi-period (cq &optional (period-bound 40))
+  "Determine the quasi period length and factor from the given array
+of complete quotients."
+  (let* ((alpha0 (lazy-aref cq 0))
+         (alpha0-lk (nth-coefficient% alpha0 0)))
+    (loop
+       for i from 1 to period-bound
+       for cqi = (lazy-aref cq i)
+       for ratio = (/ (nth-coefficient% cqi 0) alpha0-lk)
+       do (princ ".")
+       when (= (* (make-constant-series ratio) alpha0) cqi)
+       do (return (values i ratio))
+       finally (return nil))))
