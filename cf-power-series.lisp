@@ -3,7 +3,11 @@
   (:shadowing-import-from :gm :+ :- :* :/ :expt := :sqrt)
   (:use :cl :ol :generic-math :power-series)
   (:export
-   :cf))
+   :cf
+   :an
+   :complete-quotients
+   :cq-period
+   :cq-quasi-period))
 
 (in-package :continued-fractions-power-series)
 
@@ -43,3 +47,8 @@ of complete quotients."
        when (= (* (make-constant-series ratio) alpha0) cqi)
        do (return (values i ratio))
        finally (return nil))))
+
+(defun an (cf)
+  "Compute the partial quotients from the complete quotients."
+  (make-lazy-array ()
+    (series-truncate (lazy-aref cf index))))
