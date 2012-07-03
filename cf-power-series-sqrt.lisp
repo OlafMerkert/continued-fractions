@@ -2,7 +2,19 @@
   (:nicknames :cf-pss)
   (:shadowing-import-from :gm :+ :- :* :/ :expt := :sqrt)
   (:use :cl :ol :generic-math :polynomials :power-series)
-  (:export))
+  (:export
+   :make-srcf
+   :d
+   :rd
+   :alphan
+   :an
+   :rn
+   :sn
+   :srcf-quasi-period
+   :srcf-period
+   :pn
+   :qn
+   :test-pell))
 
 (in-package :continued-fractions-power-series-sqrt)
 
@@ -36,6 +48,8 @@
     srcf))
 
 (defun srcf-quasi-period (cf &optional (period-bound 40))
+  "Search for a pure quasi-period of the given cf expansion of a
+square root."
   (with-lazy-arefs (cf sn)
     (loop
        for i from 1 to period-bound
@@ -45,6 +59,8 @@
        finally (return nil))))
 
 (defun srcf-period (cf &optional (period-bound 40))
+  "Search for a pure period of the given cf expansion of a
+square root."
   (with-lazy-arefs (cf sn)
     (loop
        for i from 1 to period-bound
@@ -52,3 +68,28 @@
        when (one-p (sn i))
        do (return i)
        finally (return nil))))
+
+(defun pn (an)
+  "Given a lazy-array of the partial quotients an, produce a
+lazy-array of the approximation numerators pn."
+  (lazy-array-drop
+   (make-lazy-array (:start ((one 'polynomial)
+                             (lazy-aref an 0))
+                            :index-var n)
+     (+ (* (lazy-aref an (- n 1))
+           (aref this (- n 1)))
+        (aref this (- n 2))))
+   1))
+
+(defun qn (an)
+  "Given a lazy-array of the partial quotients an, produce a
+lazy-array of the approximation denominators qn."
+  (make-lazy-array (:start ((one 'polynomial)
+                            (lazy-aref an 1))
+                           :index-var n)
+    (+ (* (lazy-aref an n)
+          (aref this (- n 1)))
+       (aref this (- n 2)))))
+
+(defun test-pell (p q d)
+  (- (expt p 2) (* d (expt q 2))))
