@@ -18,6 +18,7 @@
      :period (srcf-quasi-period cf bound)
      :cf cf
      :d (d cf)
+     :an (an cf)
      :pn (pn (an cf))
      :qn (qn (an cf)))))
 
@@ -28,6 +29,7 @@
      :period (srcf-quasi-period cf 500)
      :cf cf
      :d (d cf)
+     :an (an cf)
      :pn (pn (an cf))
      :qn (qn (an cf)))))
 
