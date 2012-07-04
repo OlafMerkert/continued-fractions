@@ -52,3 +52,4 @@ of complete quotients."
   "Compute the partial quotients from the complete quotients."
   (make-lazy-array ()
     (series-truncate (lazy-aref cf index))))
+;; Careful, alpha_0 is not (sqrt d) here!!

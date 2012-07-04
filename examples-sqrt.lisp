@@ -7,6 +7,7 @@
      :period (srcf-quasi-period cf)
      :cf cf
      :d (d cf)
+     :an (an cf)
      :pn (pn (an cf))
      :qn (qn (an cf)))))
 
@@ -31,8 +32,13 @@
      :qn (qn (an cf)))))
 
 (defun test-pell/index (result &optional index)
-  (destructuring-bind (&key pn qn period d cf) result
+  (destructuring-bind (&key an pn qn period d cf) result
     (unless index (setf index (- period 1)))
-   (test-pell (lazy-aref pn index)
-              (lazy-aref qn index)
-              d)))
+   (values (test-pell (lazy-aref pn index)
+               (lazy-aref qn index)
+               d))))
+
+(defmacro display (obj slot &rest nrs)
+  `(destructuring-bind (&key an period cf d pn qn) ,obj
+     (declare (ignorable an period cf d pn qn))
+     (values ,@(mapcar #`(lazy-aref ,slot ,a1) nrs))))

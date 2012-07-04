@@ -73,23 +73,27 @@ square root."
   "Given a lazy-array of the partial quotients an, produce a
 lazy-array of the approximation numerators pn."
   (lazy-array-drop
-   (make-lazy-array (:start ((one 'polynomial)
-                             (lazy-aref an 0))
+   (make-lazy-array (:start ((zero 'polynomial) ; p_-2 at index 0
+                             (one  'polynomial)) ; p_-1 at index 1
                             :index-var n)
-     (+ (* (lazy-aref an (- n 1))
+     ;; p_0 is supposed to be a_0 at index 2
+     (+ (* (lazy-aref an (- n 2))
            (aref this (- n 1)))
         (aref this (- n 2))))
-   1))
+   2))
 
 (defun qn (an)
   "Given a lazy-array of the partial quotients an, produce a
 lazy-array of the approximation denominators qn."
-  (make-lazy-array (:start ((one 'polynomial)
-                            (lazy-aref an 1))
-                           :index-var n)
-    (+ (* (lazy-aref an n)
-          (aref this (- n 1)))
-       (aref this (- n 2)))))
+  (lazy-array-drop
+   (make-lazy-array (:start ((zero 'polynomial) ; q_-1 at index 0
+                             (one  'polynomial)) ; q_0 at index 1
+                            :index-var n)
+     ;; q_1 is supposed to be a_1 at index 2
+     (+ (* (lazy-aref an (- n 1))
+           (aref this (- n 1)))
+        (aref this (- n 2))))
+   1))
 
 (defun test-pell (p q d)
   (- (expt p 2) (* d (expt q 2))))
