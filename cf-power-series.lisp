@@ -7,7 +7,8 @@
    :an
    :complete-quotients
    :cq-period
-   :cq-quasi-period))
+   :cq-quasi-period
+   :time-char0))
 
 (in-package :continued-fractions-power-series)
 

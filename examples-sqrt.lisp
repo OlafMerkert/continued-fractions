@@ -13,14 +13,8 @@
 
 (defun example-char0 (bound)
   (let ((cf (make-srcf 
-             (make-polynomial 1 0 0 0 0 1 1))))
-    (list
-     :period (srcf-quasi-period cf bound)
-     :cf cf
-     :d (d cf)
-     :an (an cf)
-     :pn (pn (an cf))
-     :qn (qn (an cf)))))
+             (make-polynomial 1 0 0 0 0 1 1)))) 
+     (srcf-quasi-period cf bound)))
 
 (defun example-charp (p)
   (let ((cf (make-srcf (finite-fields:with-modulus (p)
@@ -44,3 +38,4 @@
   `(destructuring-bind (&key an period cf d pn qn) ,obj
      (declare (ignorable an period cf d pn qn))
      (values ,@(mapcar #`(lazy-aref ,slot ,a1) nrs))))
+
