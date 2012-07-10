@@ -97,3 +97,47 @@ lazy-array of the approximation denominators qn."
 
 (defun test-pell (p q d)
   (- (expt p 2) (* d (expt q 2))))
+
+;;; an alternative approach, which does not collect all the data, but
+;;; just moves on in the continued-fraction expansion
+
+(defstruct (srcf0)
+  index
+  d
+  rd
+  a
+  r
+  s)
+
+(defun init-srcf0 (d)
+  (let ((rd (sqrt d)))
+    (make-srcf0 :index 0
+                :d d
+                :rd rd
+                :a (series-truncate rd)
+                :r (zero 'polynomial)
+                :s (one 'polynomial))))
+
+(defun step-srcf0 (x)
+  (let* ((r (- (* (srcf0-s x)
+                  (srcf0-a x))
+               (srcf0-r x)))
+         (s (/ (- (srcf0-d x) (expt r 2))
+               (srcf0-s x))))
+    (make-srcf0 :index (1+ (srcf0-index x))
+                :d  (srcf0-d  x)
+                :rd (srcf0-rd x)
+                :a (series-truncate (/ (+ r (srcf0-rd x))
+                                       s))
+                :r r
+                :s s)))
+
+(defun srcf0-quasi-period (d degree-bound)
+  (loop
+     for x = (step-srcf0 (init-srcf0 d)) then (step-srcf0 x)
+     summing (degree (srcf0-a x)) into deg-p
+     do (princ ".")
+     when (zerop (degree (srcf0-s x)))
+     do (return (values t (srcf0-index x) deg-p))
+     when (> deg-p degree-bound)
+     do (return (values nil (srcf0-index x) deg-p))))

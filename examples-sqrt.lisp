@@ -11,10 +11,23 @@
      :pn (pn (an cf))
      :qn (qn (an cf)))))
 
-(defun example-char0 (bound)
+(defun example-char0/period (bound)
   (let ((cf (make-srcf 
              (make-polynomial 1 0 0 0 0 1 1)))) 
      (srcf-quasi-period cf bound)))
+
+(defun example-char0 (bound)
+  (let ((cf (make-srcf 
+             (make-polynomial 1 0 0 0 0 1 1)))) 
+     (list
+      :period (srcf-quasi-period cf bound)
+      :d (d cf)
+      :an (an cf)
+      :pn (pn (an cf))
+      :qn (qn (an cf)))))
+
+(defun example-char0/iter (bound)
+  (srcf0-quasi-period (make-polynomial 1 0 0 0 0 1 1) bound))
 
 (defun example-charp (p)
   (let ((cf (make-srcf (finite-fields:with-modulus (p)
