@@ -52,3 +52,9 @@
      (declare (ignorable an period cf d pn qn))
      (values ,@(mapcar #`(lazy-aref ,slot ,a1) nrs))))
 
+(defun show-coeffs (cf)
+  (with-lazy-arefs (cf alphan)
+    (dotimes (i 8)
+      (format t "a_-1 = ~A  a_-2 = ~A ~%"
+              (nth-coefficient (alphan i) -1)
+              (nth-coefficient (alphan i) -2)))))
