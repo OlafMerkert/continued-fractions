@@ -33,7 +33,7 @@
   (let ((cf (make-srcf (finite-fields:with-modulus (p)
                          (make-polynomial 1 0 0 0 0 1 1)))))
     (list
-     :period (srcf-quasi-period cf 500)
+     :period (srcf-quasi-period cf 2000)
      :cf cf
      :d (d cf)
      :an (an cf)
@@ -58,3 +58,14 @@
       (format t "a_-1 = ~A  a_-2 = ~A ~%"
               (nth-coefficient (alphan i) -1)
               (nth-coefficient (alphan i) -2)))))
+
+(defun show-period-lengths (primes example)
+  (princ
+   (with-output-to-string (stream)
+     (dolist (p primes)
+       (let ((e (funcall example p)))
+         (format stream "~A & ~A & ~A \\\\~%"
+                 p
+                 (second e)
+                 (when (second e)
+                   (degree (display e pn (- (second e) 1))))))))))
