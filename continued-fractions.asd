@@ -4,4 +4,5 @@
   :components ((:file "cf-power-series")
                (:file "examples")
                (:file "cf-power-series-sqrt")
-               (:file "examples-sqrt")))
+               ;; (:file "examples-sqrt")
+               ))
