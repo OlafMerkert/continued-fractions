@@ -6,13 +6,20 @@
    :continued-fraction
    :partial-quotients
    :complete-quotients
-   :cq-period
-   :cq-quasi-period
-   :time-char0
    :continued-fraction-map
    :approx-numerators
    :approx-denominators
-   :with-cf))
+   :with-cf
+   :setup-continued-fraction
+   :setup-continued-fraction-approx-fractions
+   :find-pure-period-length
+   :find-pure-quasiperiod-length
+   :cf
+   :alpha0
+   :alphan
+   :an
+   :pn
+   :qn))
 
 (in-package :continued-fractions-power-series)
 
@@ -28,6 +35,18 @@
    (approx-numerators   :reader approx-numerators)
    (approx-denominators :reader approx-denominators))
   (:documentation "TODO"))
+
+(defmacro with-cf (continued-fraction &body body)
+  `(let ((cf ,continued-fraction))
+     (with-accessors ((alpha0  starting)
+                      (alphan  complete-quotients)
+                      (an      partial-quotients)
+                      (pn      approx-numerators)
+                      (qn      approx-denominators))
+         cf
+       ,@body)))
+
+;; TODO handle perhaps also finite cf expansions.
 
 (defmethod initialize-instance :after ((continued-fraction continued-fraction) &key)
   (setup-continued-fraction continued-fraction))
@@ -62,15 +81,6 @@
                                                (partial-quotients cf) 1))
                                1))))
 
-(defmacro with-cf (continued-fraction &body body)
-  `(let ((cf ,continued-fraction))
-     (with-accessors ((alpha0  starting)
-                      (alphan  complete-quotients)
-                      (an      partial-quotients)
-                      (pn      approx-numerators)
-                      (qn      approx-denominators))
-         cf
-       ,@body)))
 
 ;; TODO move this to a more suitable place (like ol-utils)??
 (defparameter *progress-stream* *standard-output*)
