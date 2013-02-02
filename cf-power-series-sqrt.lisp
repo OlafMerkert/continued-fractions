@@ -1,102 +1,72 @@
-(defpackage :continued-fractions-power-series-sqrt
-  (:nicknames :cf-pss)
-  (:shadowing-import-from :gm :+ :- :* :/ :expt := :sqrt)
-  (:use :cl :ol :generic-math :polynomials :power-series)
-  (:export
-   :make-square-root-continued-fraction
-   :d
-   :root-of-d
-   :complete-quotients
-   :partial-quotients
-   :rn
-   :sn
-   :square-root-continued-fraction-quasi-period-length
-   :square-root-continued-fraction-period-length
-   :approx-numerator
-   :approx-denominator
-   :test-pell))
+(in-package :continued-fractions-power-series)
 
-(in-package :continued-fractions-power-series-sqrt)
+(defclass sqrt-continued-fraction (continued-fraction)
+  ((radicand :initarg :radicand
+             :reader radicand)
+   (rn :reader rn)
+   (sn :reader sn))
+  (:documentation "We know the complete quotients of (sqrt radicand)
+  will all be of the form (/ (+ rn (sqrt radicand) sn). TODO"))
 
-(defstruct (square-root-continued-fraction (:conc-name)
-                 (:constructor make-square-root-continued-fraction%))
-  d
-  root-of-d
-  complete-quotients
-  partial-quotients
-  rn
-  sn)
+(defmacro with-cf2 (continued-fraction &body body)
+  `(with-cf ,continued-fraction
+     (with-accessors ((d radicand)
+                      (rn rn)
+                      (sn sn))
+         cf
+       ,@body)))
 
-(defun make-square-root-continued-fraction (d)
-  (let ((square-root-continued-fraction (make-square-root-continued-fraction% :d d :root-of-d (sqrt d))))
-    (setf (complete-quotients square-root-continued-fraction) (make-lazy-array (:start ((root-of-d square-root-continued-fraction)))
-                          (with-lazy-arefs (square-root-continued-fraction rn sn)
-                            (/ (+ (rn index) (root-of-d square-root-continued-fraction))
-                               (sn index))))
-          (partial-quotients square-root-continued-fraction) (make-lazy-array ()
-                      (with-lazy-arefs (square-root-continued-fraction complete-quotients)
-                        (series-truncate (complete-quotients index))))
-          (rn square-root-continued-fraction) (make-lazy-array (:start ((zero 'polynomial)))
-                      (with-lazy-arefs (square-root-continued-fraction partial-quotients sn)
-                        (- (* (sn (- index 1))
-                              (partial-quotients (- index 1)))
-                           (aref this (- index 1)))))
-          (sn square-root-continued-fraction) (make-lazy-array (:start ((one 'polynomial)))
-                      (with-lazy-arefs (square-root-continued-fraction rn)
-                        (/ (- d (expt (rn index) 2))
-                           (aref this (- index 1))))))
-    square-root-continued-fraction))
+(defmethod setup-continued-fraction ((cf sqrt-continued-fraction))
+  (with-slots ((d radicand)
+               starting
+               complete-quotients
+               (an partial-quotients)
+               rn
+               sn)
+      cf
+    (setf starting (sqrt d))
+    (let ((a0 (series-truncate starting)))
+      ;; the main calculations
+      (setf an (make-lazy-array (:start (a0) :index-var n)
+                 (/ (+ (lazy-aref rn n) a0)
+                    (lazy-aref sn n)))
+            rn (make-lazy-array (:start ((zero 'polynomial)) :index-var n)
+                 (let ((n-1 (- n 1)))
+                   (- (* (lazy-aref sn n-1)
+                         (lazy-aref an n-1))
+                      (aref this n-1))))
+            sn (make-lazy-array (:start ((one 'polynomial)) :index-var n)
+                 (/ (- d (expt (lazy-aref rn n) 2))
+                    (aref this (- n 1))))))
+    ;; additional setup
+    (setf complete-quotients (make-lazy-array (:index-var n)
+                               (/ (+ (lazy-aref rn n) starting)
+                                  (lazy-aref sn n))))
+    (setup-continued-fraction-approx-fractions cf)))
 
-(defun square-root-continued-fraction-quasi-period-length (continued-fraction &optional (period-length-bound 40))
-  "Search for a pure quasi-period-length of the given continued-fraction exppartial-quotients of a
-square root."
-  (with-lazy-arefs (continued-fraction sn)
-    (loop
-       for i from 1 to period-length-bound
-       do (princ ".")
-       when (zerop (degree (sn i)))
-       do (return i)
-       finally (return nil))))
 
-(defun square-root-continued-fraction-period-length (continued-fraction &optional (period-length-bound 40))
-  "Search for a pure period-length of the given continued-fraction exppartial-quotients of a
-square root."
-  (with-lazy-arefs (continued-fraction sn)
-    (loop
-       for i from 1 to period-length-bound
-       do (princ ".")
-       when (one-p (sn i))
-       do (return i)
-       finally (return nil))))
+(defmethod  find-pure-period-length ((continued-fraction sqrt-continued-fraction)
+                                     &key (length-bound 40))
+  "In fact, (sqrt radicand) has not a pure cf expansion, but a0
+  + (sqrt radicand) does, and the period can be detected very easily."
+  (with-cf2 continued-fraction
+    (iter (for i from 1 to length-bound)
+          (progress-event)
+          (when (one-p (lazy-aref sn i))
+            (return i))
+          (finally (return nil)))))
 
-(defun approx-numerator (partial-quotients)
-  "Given a lazy-array of the partial quotients partial-quotients, produce a
-lazy-array of the approximation numerators approx-numerator."
-  (lazy-array-drop
-   (make-lazy-array (:start ((zero 'polynomial) ; p_-2 at index 0
-                             (one  'polynomial)) ; p_-1 at index 1
-                            :index-var n)
-     ;; p_0 is supposed to be a_0 at index 2
-     (+ (* (lazy-aref partial-quotients (- n 2))
-           (aref this (- n 1)))
-        (aref this (- n 2))))
-   2))
+(defmethod  find-pure-quasiperiod-length ((continued-fraction sqrt-continued-fraction)
+                                     &key (length-bound 40))
+  "In fact, (sqrt radicand) has not a pure cf expansion, but a0
+  + (sqrt radicand) does, and the quasiperiod can be detected very easily."
+  (with-cf2 continued-fraction
+    (iter (for i from 1 to length-bound)
+          (progress-event)
+          (when (<= (degree (lazy-aref sn i)) 0)
+            (return (values i (lazy-aref sn i))))
+          (finally (return nil)))))
 
-(defun approx-denominator (partial-quotients)
-  "Given a lazy-array of the partial quotients partial-quotients, produce a
-lazy-array of the approximation denominators approx-denominator."
-  (lazy-array-drop
-   (make-lazy-array (:start ((zero 'polynomial) ; q_-1 at index 0
-                             (one  'polynomial)) ; q_0 at index 1
-                            :index-var n)
-     ;; q_1 is supposed to be a_1 at index 2
-     (+ (* (lazy-aref partial-quotients (- n 1))
-           (aref this (- n 1)))
-        (aref this (- n 2))))
-   1))
-
-(defun test-pell (p q d)
-  (- (expt p 2) (* d (expt q 2))))
 
 ;;; partial-quotients alternative approach, which does not collect all the data, but
 ;;; just moves on in the continued-fraction exppartial-quotients
