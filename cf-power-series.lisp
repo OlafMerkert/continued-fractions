@@ -64,14 +64,15 @@
 
 (defmacro with-cf (continued-fraction &body body)
   `(let ((cf ,continued-fraction))
-     (with-accessors ((alpha0 starting)
-                      (alphan complete-quotients)
-                      (an partial-quotients)
-                      (pn approx-numerators)
-                      (qn approx-denominators))
+     (with-accessors ((alpha0  starting)
+                      (alphan  complete-quotients)
+                      (an      partial-quotients)
+                      (pn      approx-numerators)
+                      (qn      approx-denominators))
          cf
        ,@body)))
 
+;; TODO move this to a more suitable place (like ol-utils)??
 (defparameter *progress-stream* *standard-output*)
 
 (declaim (inline progress-event))
