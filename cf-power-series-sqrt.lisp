@@ -3,94 +3,94 @@
   (:shadowing-import-from :gm :+ :- :* :/ :expt := :sqrt)
   (:use :cl :ol :generic-math :polynomials :power-series)
   (:export
-   :make-srcf
+   :make-square-root-continued-fraction
    :d
-   :rd
-   :alphan
-   :an
+   :root-of-d
+   :complete-quotients
+   :partial-quotients
    :rn
    :sn
-   :srcf-quasi-period
-   :srcf-period
-   :pn
-   :qn
+   :square-root-continued-fraction-quasi-period-length
+   :square-root-continued-fraction-period-length
+   :approx-numerator
+   :approx-denominator
    :test-pell))
 
 (in-package :continued-fractions-power-series-sqrt)
 
-(defstruct (srcf (:conc-name)
-                 (:constructor make-srcf%))
+(defstruct (square-root-continued-fraction (:conc-name)
+                 (:constructor make-square-root-continued-fraction%))
   d
-  rd
-  alphan
-  an
+  root-of-d
+  complete-quotients
+  partial-quotients
   rn
   sn)
 
-(defun make-srcf (d)
-  (let ((srcf (make-srcf% :d d :rd (sqrt d))))
-    (setf (alphan srcf) (make-lazy-array (:start ((rd srcf)))
-                          (with-lazy-arefs (srcf rn sn)
-                            (/ (+ (rn index) (rd srcf))
+(defun make-square-root-continued-fraction (d)
+  (let ((square-root-continued-fraction (make-square-root-continued-fraction% :d d :root-of-d (sqrt d))))
+    (setf (complete-quotients square-root-continued-fraction) (make-lazy-array (:start ((root-of-d square-root-continued-fraction)))
+                          (with-lazy-arefs (square-root-continued-fraction rn sn)
+                            (/ (+ (rn index) (root-of-d square-root-continued-fraction))
                                (sn index))))
-          (an srcf) (make-lazy-array ()
-                      (with-lazy-arefs (srcf alphan)
-                        (series-truncate (alphan index))))
-          (rn srcf) (make-lazy-array (:start ((zero 'polynomial)))
-                      (with-lazy-arefs (srcf an sn)
+          (partial-quotients square-root-continued-fraction) (make-lazy-array ()
+                      (with-lazy-arefs (square-root-continued-fraction complete-quotients)
+                        (series-truncate (complete-quotients index))))
+          (rn square-root-continued-fraction) (make-lazy-array (:start ((zero 'polynomial)))
+                      (with-lazy-arefs (square-root-continued-fraction partial-quotients sn)
                         (- (* (sn (- index 1))
-                              (an (- index 1)))
+                              (partial-quotients (- index 1)))
                            (aref this (- index 1)))))
-          (sn srcf) (make-lazy-array (:start ((one 'polynomial)))
-                      (with-lazy-arefs (srcf rn)
+          (sn square-root-continued-fraction) (make-lazy-array (:start ((one 'polynomial)))
+                      (with-lazy-arefs (square-root-continued-fraction rn)
                         (/ (- d (expt (rn index) 2))
                            (aref this (- index 1))))))
-    srcf))
+    square-root-continued-fraction))
 
-(defun srcf-quasi-period (cf &optional (period-bound 40))
-  "Search for a pure quasi-period of the given cf expansion of a
+(defun square-root-continued-fraction-quasi-period-length (continued-fraction &optional (period-length-bound 40))
+  "Search for a pure quasi-period-length of the given continued-fraction exppartial-quotients of a
 square root."
-  (with-lazy-arefs (cf sn)
+  (with-lazy-arefs (continued-fraction sn)
     (loop
-       for i from 1 to period-bound
+       for i from 1 to period-length-bound
        do (princ ".")
        when (zerop (degree (sn i)))
        do (return i)
        finally (return nil))))
 
-(defun srcf-period (cf &optional (period-bound 40))
-  "Search for a pure period of the given cf expansion of a
+(defun square-root-continued-fraction-period-length (continued-fraction &optional (period-length-bound 40))
+  "Search for a pure period-length of the given continued-fraction exppartial-quotients of a
 square root."
-  (with-lazy-arefs (cf sn)
+  (with-lazy-arefs (continued-fraction sn)
     (loop
-       for i from 1 to period-bound
+       for i from 1 to period-length-bound
        do (princ ".")
        when (one-p (sn i))
        do (return i)
        finally (return nil))))
 
-(defun pn (an)
-  "Given a lazy-array of the partial quotients an, produce a
-lazy-array of the approximation numerators pn."
+(defun approx-numerator (partial-quotients)
+  "Given a lazy-array of the partial quotients partial-quotients, produce a
+lazy-array of the approximation numerators approx-numerator."
   (lazy-array-drop
    (make-lazy-array (:start ((zero 'polynomial) ; p_-2 at index 0
                              (one  'polynomial)) ; p_-1 at index 1
                             :index-var n)
      ;; p_0 is supposed to be a_0 at index 2
-     (+ (* (lazy-aref an (- n 2))
+     (+ (* (lazy-aref partial-quotients (- n 2))
            (aref this (- n 1)))
         (aref this (- n 2))))
    2))
 
-(defun qn (an)
-  "Given a lazy-array of the partial quotients an, produce a
-lazy-array of the approximation denominators qn."
+(defun approx-denominator (partial-quotients)
+  "Given a lazy-array of the partial quotients partial-quotients, produce a
+lazy-array of the approximation denominators approx-denominator."
   (lazy-array-drop
    (make-lazy-array (:start ((zero 'polynomial) ; q_-1 at index 0
                              (one  'polynomial)) ; q_0 at index 1
                             :index-var n)
      ;; q_1 is supposed to be a_1 at index 2
-     (+ (* (lazy-aref an (- n 1))
+     (+ (* (lazy-aref partial-quotients (- n 1))
            (aref this (- n 1)))
         (aref this (- n 2))))
    1))
@@ -98,46 +98,46 @@ lazy-array of the approximation denominators qn."
 (defun test-pell (p q d)
   (- (expt p 2) (* d (expt q 2))))
 
-;;; an alternative approach, which does not collect all the data, but
-;;; just moves on in the continued-fraction expansion
+;;; partial-quotients alternative approach, which does not collect all the data, but
+;;; just moves on in the continued-fraction exppartial-quotients
 
-(defstruct (srcf0)
+(defstruct (square-root-continued-fraction)
   index
   d
-  rd
+  root-of-d
   a
   r
   s)
 
-(defun init-srcf0 (d)
+(defun init-square-root-continued-fraction (d)
   (let ((rd (sqrt d)))
-    (make-srcf0 :index 0
+    (make-square-root-continued-fraction :index 0
                 :d d
                 :rd rd
                 :a (series-truncate rd)
                 :r (zero 'polynomial)
                 :s (one 'polynomial))))
 
-(defun step-srcf0 (x)
-  (let* ((r (- (* (srcf0-s x)
-                  (srcf0-a x))
-               (srcf0-r x)))
-         (s (/ (- (srcf0-d x) (expt r 2))
-               (srcf0-s x))))
-    (make-srcf0 :index (1+ (srcf0-index x))
-                :d  (srcf0-d  x)
-                :rd (srcf0-rd x)
-                :a (series-truncate (/ (+ r (srcf0-rd x))
+(defun step-square-root-continued-fraction (x)
+  (let* ((r (- (* (square-root-continued-fraction-s x)
+                  (square-root-continued-fraction-a x))
+               (square-root-continued-fraction-r x)))
+         (s (/ (- (square-root-continued-fraction-d x) (expt r 2))
+               (square-root-continued-fraction-s x))))
+    (make-square-root-continued-fraction :index (1+ (square-root-continued-fraction-index x))
+                :d  (square-root-continued-fraction-d  x)
+                :rd (square-root-continued-fraction-rd x)
+                :a (series-truncate (/ (+ r (square-root-continued-fraction-rd x))
                                        s))
                 :r r
                 :s s)))
 
-(defun srcf0-quasi-period (d degree-bound)
+(defun square-root-continued-fraction-quasi-period-length (d degree-bound)
   (loop
-     for x = (step-srcf0 (init-srcf0 d)) then (step-srcf0 x)
-     summing (degree (srcf0-a x)) into deg-p
+     for x = (step-square-root-continued-fraction (init-square-root-continued-fraction d)) then (step-square-root-continued-fraction x)
+     summing (degree (square-root-continued-fraction-a x)) into deg-p
      do (princ ".")
-     when (zerop (degree (srcf0-s x)))
-     do (return (values t (srcf0-index x) deg-p))
+     when (zerop (degree (square-root-continued-fraction-s x)))
+     do (return (values t (square-root-continued-fraction-index x) deg-p))
      when (> deg-p degree-bound)
-     do (return (values nil (srcf0-index x) deg-p))))
+     do (return (values nil (square-root-continued-fraction-index x) deg-p))))
