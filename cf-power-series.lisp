@@ -1,7 +1,8 @@
 (defpackage :continued-fractions-power-series
   (:nicknames :cf-ps)
-  (:shadowing-import-from :gm :+ :- :* :/ :expt := :sqrt :summing)
-  (:use :cl :ol :generic-math :power-series :iterate)
+  (:shadowing-import-from :generic-math :+ :- :* :/ :expt := :sqrt :summing)
+  (:use :cl :ol :generic-math
+        :polynomials :power-series :iterate)
   (:export
    :continued-fraction
    :partial-quotients
@@ -59,7 +60,7 @@
     (setf alphan (make-lazy-array (:start (starting) :index-var n)
                    (continued-fraction-map (aref this (- n 1))))
           an (make-lazy-array (:index-var n)
-               (series-truncate (aref alphan n)))))
+               (series-truncate (lazy-aref alphan n)))))
   (setup-continued-fraction-approx-fractions cf))
 
 (declaim (inline setup-continued-fraction-approx-fractions approx-helper))
