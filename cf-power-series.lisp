@@ -20,7 +20,13 @@
    :alphan
    :an
    :pn
-   :qn))
+   :qn
+   :sqrt-continued-fraction
+   :starting
+   :with-cf2
+   :d
+   :rn
+   :sn))
 
 (in-package :continued-fractions-power-series)
 

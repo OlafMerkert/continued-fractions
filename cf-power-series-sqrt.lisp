@@ -45,7 +45,7 @@
     (setup-continued-fraction-approx-fractions cf)))
 
 
-(defmethod  find-pure-period-length ((continued-fraction sqrt-continued-fraction)
+(defmethod find-pure-period-length ((continued-fraction sqrt-continued-fraction)
                                      &key (length-bound 40))
   "In fact, (sqrt radicand) has not a pure cf expansion, but a0
   + (sqrt radicand) does, and the period can be detected very easily."
@@ -56,8 +56,8 @@
             (return i))
           (finally (return nil)))))
 
-(defmethod  find-pure-quasiperiod-length ((continued-fraction sqrt-continued-fraction)
-                                     &key (length-bound 40))
+(defmethod find-pure-quasiperiod-length ((continued-fraction sqrt-continued-fraction)
+                                         &key (length-bound 40))
   "In fact, (sqrt radicand) has not a pure cf expansion, but a0
   + (sqrt radicand) does, and the quasiperiod can be detected very easily."
   (with-cf2 continued-fraction
