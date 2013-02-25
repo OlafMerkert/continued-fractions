@@ -67,3 +67,35 @@
             (return (values i (lazy-aref sn i))))
           (finally (return nil)))))
 
+;;; for deg 4, we can just check a point on an elliptic curve
+(defmethod check-torsion-divisor ((polynomial polynomial))
+  (when (cl:= (degree polynomial) 4)
+    (error "CHECK-TORSION-DIVISOR only works for polynomials of deg 4."))
+  (labels ((a (n) (nth-coefficient% polynomial n)))
+    (let ((g2 (+ (* 3 (a 2) (a 2))
+                 (* -4 (a 1) (a 3))
+                 (* (a 0) (a 4))))
+          (g3 (+ (* -1 (expt (a 2) 3))
+                 (* 2 (a 1) (a 2) (a 3))
+                 (* (a 0) (a 2) (a 4))
+                 (* -1 (a 0) (a 3) (a 3))
+                 (* -1 (a 1) (a 1) (a 4))))
+          (s2 (- (expt (a 1) 2)
+                 (* (a 0) (a 2))))
+          (s3 (+ (* 2 (expt (a 1) 3))
+                 (* -3 (a 0) (a 1) (a 2))
+                 (* (a 0) (a 0) (a 3)))))
+      (let* ((ecurve (make-instance 'ec-ws:elliptic-curve :a (/ g2 -4) :b (/ g3 -4)))
+             (point (make-instance 'ec-ws:ec-point-ws
+                                   :curve ecurve
+                                   :x (/ s2 (a 0)) :y (/ s3 2 (a 0) (gm:sqrt (a 0))))))
+        (unless (ec-ws:ec-rational-p point)
+          (error "Curve and point are not defined over the rationals, cannot apply test."))
+        (when (gm:zero-p (ec-ws:discriminant ecurve))
+          (error "This curve is singular (i.e. the given polynomial was not squarefree)."))
+        (values (ec-ws:ec-rational-torsion-p point)
+                point
+                ecurve)))))
+
+(defmethod check-torsion-divisor ((continued-fraction sqrt-continued-fraction))
+  (check-torsion-divisor (radicand continued-fraction)))

@@ -26,7 +26,8 @@
    :with-cf2
    :d
    :rn
-   :sn))
+   :sn
+   :check-torsion-divisor))
 
 (in-package :continued-fractions-power-series)
 
