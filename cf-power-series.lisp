@@ -123,3 +123,7 @@ there is one."
           (when (= (* (make-constant-series gamma) alpha0) alphai)
             (return (values i gamma)))
           (finally (return nil)))))
+
+;;; reduction means reducing the starting series
+(defmethod -> ((target-type (eql 'finite-fields:integer-mod)) (cf continued-fraction) &key (mod 3))
+  (make-instance 'continued-fraction :starting (-> 'finite-fields:integer-mod (starting cf) :mod mod)))
