@@ -10,6 +10,9 @@
 
 (defmacro with-cf2 (continued-fraction &body body)
   `(with-cf ,continued-fraction
+     (unless (typep cf 'sqrt-continued-fraction)
+       (error "Expected SQRT-CONTINUED-FRACTION, but probably only got
+       a CONTINUED-FRACTION."))
      (with-accessors ((d radicand)
                       (rn rn)
                       (sn sn))
