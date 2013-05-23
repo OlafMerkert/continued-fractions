@@ -57,3 +57,35 @@
               ssn                 (lazy-array-map v sn nil))))
     scf))
 
+(defclass symbolic-quadratic-continued-fraction (symbolic-continued-fraction
+                                                 quadratic-continued-fraction)
+  ())
+
+(defmethod vc:valuate-exp (valuation (quadratic-continued-fraction quadratic-continued-fraction))
+  (let ((scf (make-instance 'symbolic-quadratic-continued-fraction))
+        (v (vc:val valuation)))
+    (with-slots (cf-ps::starting
+                 cf-ps::complete-quotients
+                 cf-ps::partial-quotients
+                 cf-ps::approx-numerators
+                 cf-ps::approx-denominators
+                 cf-ps::radicand
+                 (aa cf-ps::a)
+                 (bb cf-ps::b)
+                 (cc cf-ps::c)
+                 (rrn cf-ps::rn)
+                 (ssn cf-ps::sn)
+                 (ttn cf-ps::tn)) scf
+      (with-cf2* quadratic-continued-fraction
+        (setf cf-ps::starting            (vc:valuate-exp valuation alpha0)
+              cf-ps::complete-quotients  (lazy-array-map v alphan nil )
+              cf-ps::partial-quotients   (lazy-array-map v an nil)
+              cf-ps::approx-numerators   (lazy-array-map v pn nil)
+              cf-ps::approx-denominators (lazy-array-map v qn nil)
+              cf-ps::radicand            (vc:valuate-exp valuation d)
+              aa                         (vc:valuate-exp valuation cf-ps::a)
+              bb                         (vc:valuate-exp valuation cf-ps::b)
+              cc                         (vc:valuate-exp valuation cf-ps::c)
+              rrn                        (lazy-array-map v rn nil)
+              ssn                        (lazy-array-map v sn nil)
+              ttn                        (lazy-array-map v tn nil))))))

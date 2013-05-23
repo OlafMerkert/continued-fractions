@@ -32,11 +32,6 @@
          cf
        ,@body)))
 
-(defmacro! lazy-aref-bind (arrays o!index &body body)
-  `(let ,(mapcar #`(,a1 (lazy-aref ,a1 ,g!index)) arrays)
-     ,@body))
-
-
 (defmethod setup-continued-fraction ((cf quadratic-continued-fraction))
   (with-slots ((d radicand)
                a b c
@@ -56,19 +51,19 @@
                         (lazy-aref sn n)))
             ;; then come the main calculations
             rn (make-lazy-array (:start (a) :index-var n)
-                 (lazy-aref-bind (rn sn an) (- n 1)
+                 (lazy-arefs (rn sn an) (- n 1)
                    (if #1=(and (cl:= 1 n) not-div-cond-0)
                        ;; cannot cancel sn
                        (* sn (- rn (* sn an)))
                        ;; can cancel sn
                        (- rn (* sn an)))))
             tn (make-lazy-array (:start (b) :index-var n)
-                 (lazy-aref-bind (sn tn) (- n 1)
+                 (lazy-arefs (sn tn) (- n 1)
                    (if #1#
                        (* -1 tn sn)
                        (* -1 tn))))
             sn (make-lazy-array (:start (c) :index-var n)
-                 (lazy-aref-bind (rn sn tn an) (- n 1)
+                 (lazy-arefs (rn sn tn an) (- n 1)
                    (if #1#
                        (+ (expt rn 2)
                           (* -1 d (expt b 2))

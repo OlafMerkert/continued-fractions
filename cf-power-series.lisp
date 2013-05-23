@@ -27,7 +27,10 @@
    :d
    :rn
    :sn
-   :check-torsion-divisor))
+   :check-torsion-divisor
+   :quadratic-continued-fraction
+   :with-cf2*
+   :tn))
 
 (in-package :continued-fractions-power-series)
 
