@@ -107,4 +107,5 @@
 
 ;;; reduction means reducing the radicand
 (defmethod -> ((target-type (eql 'finite-fields:integer-mod)) (cf sqrt-continued-fraction) &key (mod 3))
-  (make-instance 'sqrt-continued-fraction :radicand (-> 'finite-fields:integer-mod (radicand cf) :mod mod)))
+  (make-instance 'sqrt-continued-fraction
+                 :radicand (-> 'finite-fields:integer-mod (radicand cf) :mod mod)))
