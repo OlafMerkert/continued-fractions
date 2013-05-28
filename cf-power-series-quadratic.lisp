@@ -38,40 +38,26 @@
                starting
                (alphan complete-quotients)
                (an partial-quotients)
-               rn sn tn)
+               rn sn)
       cf
-    (let ((sqrt-d (sqrt d))
-          (not-div-cond-0 (not (zero-p (/ (- (expt a 2) (* d (expt b 2))) c)))))
+    (let* ((sqrt-d (sqrt d))
+          (bbrd (* b c sqrt-d)))
       ;; first setup partial and complete quotients
       (setf an (make-lazy-array (:index-var n)
                  (series-truncate (lazy-aref alphan n)))
             alphan (make-lazy-array (:index-var n)
-                     (/ (+ (lazy-aref rn n)
-                           (* (lazy-aref tn n) sqrt-d))
+                     (/ (+ (lazy-aref rn n) bbrd)
                         (lazy-aref sn n)))
             ;; then come the main calculations
-            rn (make-lazy-array (:start (a) :index-var n)
+            rn (make-lazy-array (:start ((* a c)) :index-var n)
                  (lazy-arefs (rn sn an) (- n 1)
-                   (if #1=(and (cl:= 1 n) not-div-cond-0)
-                       ;; cannot cancel sn
-                       (* sn (- rn (* sn an)))
-                       ;; can cancel sn
-                       (- rn (* sn an)))))
-            tn (make-lazy-array (:start (b) :index-var n)
-                 (lazy-arefs (sn tn) (- n 1)
-                   (if #1#
-                       (* -1 tn sn)
-                       (* -1 tn))))
-            sn (make-lazy-array (:start (c) :index-var n)
+                   (- (* sn an) rn)))
+
+            sn (make-lazy-array (:start ((expt c 2)) :index-var n)
                  (lazy-arefs (rn sn tn an) (- n 1)
-                   (if #1#
-                       (+ (expt rn 2)
-                          (* -1 d (expt b 2))
-                          (* -2 sn rn an)
-                          (* (expt sn 2) (expt an 2)))
-                       (+ (/ (- (expt rn 2) (* d (expt tn 2))) sn)
-                          (* -2 rn an)
-                          (* sn (expt an 2))))))
+                   (+ (/ (- (* d (expt tn 2)) (expt rn 2)) sn)
+                      (* 2 rn an)
+                      (* -1 sn (expt an 2)))))
             ;; finally, provide `starting'
             starting (lazy-aref alphan 0))))
       (setup-continued-fraction-approx-fractions cf))
