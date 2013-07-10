@@ -1,6 +1,6 @@
 (defpackage :continued-fractions-power-series
   (:nicknames :cf-ps)
-  (:shadowing-import-from :generic-math :+ :- :* :/ :expt := :sqrt :summing)
+  (:shadowing-import-from :generic-math :+ :- :* :/ :expt := :sqrt :summing :^ :_)
   (:use :cl :ol :generic-math
         :polynomials :power-series :iterate)
   (:export
