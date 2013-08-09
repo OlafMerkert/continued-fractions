@@ -28,6 +28,9 @@
                sn)
       cf
     (setf starting (sqrt d))
+    ;; detect when we have a square
+    (when (typep starting 'polynomial)
+      (error "got a square polynomial, cf expansion is trivial."))
     (let ((a0 (series-truncate starting)))
       ;; the main calculations
       (setf an (make-lazy-array (:start (a0) :index-var n)
