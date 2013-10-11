@@ -1,6 +1,7 @@
 (defpackage :cf-valuations
   (:use :cl :ol :iterate
-        :continued-fractions-power-series)
+        :continued-fractions-power-series
+        :infinite-sequence)
   (:export))
 
 (in-package :cf-valuations)
@@ -25,10 +26,10 @@
                  cf-ps::approx-denominators) scf
       (with-cf continued-fraction
         (setf cf-ps::starting            (vc:valuate-exp valuation alpha0)
-              cf-ps::complete-quotients  (lazy-array-map v alphan nil)
-              cf-ps::partial-quotients   (lazy-array-map v an nil)
-              cf-ps::approx-numerators   (lazy-array-map v pn nil)
-              cf-ps::approx-denominators (lazy-array-map v qn nil))))
+              cf-ps::complete-quotients  (map-sequence v alphan)
+              cf-ps::partial-quotients   (map-sequence v an)
+              cf-ps::approx-numerators   (map-sequence v pn)
+              cf-ps::approx-denominators (map-sequence v qn))))
     scf))
 
 (defclass symbolic-sqrt-continued-fraction (symbolic-continued-fraction
@@ -48,13 +49,13 @@
                  (ssn cf-ps::sn)) scf
       (with-cf2 sqrt-continued-fraction
         (setf cf-ps::starting            (vc:valuate-exp valuation alpha0)
-              cf-ps::complete-quotients  (lazy-array-map v alphan nil )
-              cf-ps::partial-quotients   (lazy-array-map v an nil)
-              cf-ps::approx-numerators   (lazy-array-map v pn nil)
-              cf-ps::approx-denominators (lazy-array-map v qn nil)
+              cf-ps::complete-quotients  (map-sequence v alphan )
+              cf-ps::partial-quotients   (map-sequence v an)
+              cf-ps::approx-numerators   (map-sequence v pn)
+              cf-ps::approx-denominators (map-sequence v qn)
               cf-ps::radicand            (vc:valuate-exp valuation d)
-              rrn                 (lazy-array-map v rn nil)
-              ssn                 (lazy-array-map v sn nil))))
+              rrn                 (map-sequence v rn)
+              ssn                 (map-sequence v sn))))
     scf))
 
 (defclass symbolic-quadratic-continued-fraction (symbolic-continued-fraction
@@ -78,14 +79,14 @@
                  (ttn cf-ps::tn)) scf
       (with-cf2* quadratic-continued-fraction
         (setf cf-ps::starting            (vc:valuate-exp valuation alpha0)
-              cf-ps::complete-quotients  (lazy-array-map v alphan nil )
-              cf-ps::partial-quotients   (lazy-array-map v an nil)
-              cf-ps::approx-numerators   (lazy-array-map v pn nil)
-              cf-ps::approx-denominators (lazy-array-map v qn nil)
+              cf-ps::complete-quotients  (map-sequence v alphan )
+              cf-ps::partial-quotients   (map-sequence v an)
+              cf-ps::approx-numerators   (map-sequence v pn)
+              cf-ps::approx-denominators (map-sequence v qn)
               cf-ps::radicand            (vc:valuate-exp valuation d)
               aa                         (vc:valuate-exp valuation cf-ps::a)
               bb                         (vc:valuate-exp valuation cf-ps::b)
               cc                         (vc:valuate-exp valuation cf-ps::c)
-              rrn                        (lazy-array-map v rn nil)
-              ssn                        (lazy-array-map v sn nil)
-              ttn                        (lazy-array-map v tn nil))))))
+              rrn                        (map-sequence v rn)
+              ssn                        (map-sequence v sn)
+              ttn                        (map-sequence v tn))))))

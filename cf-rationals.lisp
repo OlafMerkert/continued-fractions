@@ -56,5 +56,4 @@
                (alphan complete-quotients)
                (an partial-quotients))
       cf
-    (setf alphan (make-lazy-array (:start (starting) :index-var n)
-                   ))))
+    (setf alphan nil)))

@@ -42,12 +42,20 @@ non-negative degree."
 
 ;;; all we need to do is change the setup
 (defmethod setup-continued-fraction ((cf alternative-continued-fraction))
-    (with-slots (starting
+  (with-slots (starting
                (alphan complete-quotients)
                (an partial-quotients))
       cf
-    (setf alphan (make-lazy-array (:start (starting) :index-var n)
-                   (alternative-continued-fraction-map (aref this (- n 1))))
-          an (make-lazy-array (:index-var n)
-               (series-first-term (lazy-aref alphan n)))))
-    (setup-continued-fraction-approx-fractions cf))
+    (setf alphan (make-instance 'infinite-sequence:infinite+-sequence
+                                :fill-strategy :sequential
+                                :data+ (vector starting)
+                                :generating-function
+                                (lambda (this n)
+                                  (alternative-continued-fraction-map
+                                   (infinite-sequence:sref this (- n 1)))))
+          an (make-instance 'infinite-sequence:infinite+-sequence
+                            :fill-strategy :sequential
+                            :generating-function
+                            (lambda (this n)
+                              (series-first-term (infinite-sequence:sref alphan n))))))
+  (setup-continued-fraction-approx-fractions cf))

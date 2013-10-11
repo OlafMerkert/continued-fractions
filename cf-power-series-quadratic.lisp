@@ -41,26 +41,37 @@
                rn sn)
       cf
     (let* ((sqrt-d (sqrt d))
-          (bbrd (* b c sqrt-d)))
+           (bbrd (* b c sqrt-d)))
       ;; first setup partial and complete quotients
-      (setf an (make-lazy-array (:index-var n)
-                 (series-truncate (lazy-aref alphan n)))
-            alphan (make-lazy-array (:index-var n)
-                     (/ (+ (lazy-aref rn n) bbrd)
-                        (lazy-aref sn n)))
+      (setf an (make-instance 'infinite+-sequence
+                              :fill-strategy :sequential
+                              :generating-function
+                              (lambda (this n) (series-truncate (sref alphan n))))
+            alphan (make-instance 'infinite+-sequence
+                                  :fill-strategy :sequential
+                                  :generating-function
+                                  (lambda (this n) (/ (+ (sref rn n) bbrd) (sref sn n))))
             ;; then come the main calculations
-            rn (make-lazy-array (:start ((* a c)) :index-var n)
-                 (lazy-arefs (rn sn an) (- n 1)
-                   (- (* sn an) rn)))
+            rn (make-instance 'infinite+-sequence
+                              :fill-strategy :sequential
+                              :data+ (vector (* a c))
+                              :generating-function
+                              (lambda (this n)
+                                (bind-seq (rn sn an) (- n 1)
+                                  (- (* sn an) rn))))
 
-            sn (make-lazy-array (:start ((expt c 2)) :index-var n)
-                 (lazy-arefs (rn sn tn an) (- n 1)
-                   (+ (/ (- (* d (expt tn 2)) (expt rn 2)) sn)
-                      (* 2 rn an)
-                      (* -1 sn (expt an 2)))))
+            sn (make-instance 'infinite+-sequence
+                              :fill-strategy :sequential
+                              :data+ (vector (expt c 2))
+                              :generating-function
+                              (lambda (this n)
+                                (bind-seq (rn sn tn an) (- n 1)
+                                  (+ (/ (- (* d (expt tn 2)) (expt rn 2)) sn)
+                                     (* 2 rn an)
+                                     (* -1 sn (expt an 2))))))
             ;; finally, provide `starting'
-            starting (lazy-aref alphan 0))))
-      (setup-continued-fraction-approx-fractions cf))
+            starting (sref alphan 0))))
+  (setup-continued-fraction-approx-fractions cf))
 ;;; TODO check these formulas for mistakes
 
 ;;; TODO check whether we need to cover additional canceling issues
