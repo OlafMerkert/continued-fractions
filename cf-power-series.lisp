@@ -2,35 +2,36 @@
   (:nicknames :cf-ps)
   (:shadowing-import-from :generic-math :+ :- :* :/ :expt := :sqrt :summing :^ :_)
   (:use :cl :ol :generic-math
-        :polynomials :power-series :iterate)
+        :polynomials :power-series :iterate
+        :infinite-sequence)
   (:export
-   :continued-fraction
-   :partial-quotients
-   :complete-quotients
-   :continued-fraction-map
-   :approx-numerators
-   :approx-denominators
-   :with-cf
-   :setup-continued-fraction
-   :setup-continued-fraction-approx-fractions
-   :find-pure-period-length
-   :find-pure-quasiperiod-length
-   :cf
-   :alpha0
-   :alphan
-   :an
-   :pn
-   :qn
-   :sqrt-continued-fraction
-   :starting
-   :with-cf2
-   :d
-   :rn
-   :sn
-   :check-torsion-divisor
-   :quadratic-continued-fraction
-   :with-cf2*
-   :tn))
+   #:continued-fraction
+   #:partial-quotients
+   #:complete-quotients
+   #:continued-fraction-map
+   #:approx-numerators
+   #:approx-denominators
+   #:with-cf
+   #:setup-continued-fraction
+   #:setup-continued-fraction-approx-fractions
+   #:find-pure-period-length
+   #:find-pure-quasiperiod-length
+   #:cf
+   #:alpha0
+   #:alphan
+   #:an
+   #:pn
+   #:qn
+   #:sqrt-continued-fraction
+   #:starting
+   #:with-cf2
+   #:d
+   #:rn
+   #:sn
+   #:check-torsion-divisor
+   #:quadratic-continued-fraction
+   #:with-cf2*
+   #:tn))
 
 (in-package :continued-fractions-power-series)
 
@@ -67,30 +68,34 @@
                (alphan complete-quotients)
                (an partial-quotients))
       cf
-    (setf alphan (make-lazy-array (:start (starting) :index-var n)
-                   (continued-fraction-map (aref this (- n 1))))
-          an (make-lazy-array (:index-var n)
-               (series-truncate (lazy-aref alphan n)))))
+    (setf alphan (make-instance 'infinite+-sequence
+                                :fill-strategy :sequential
+                                :data+ (vector starting)
+                                :generating-function
+                                (lambda (this n)
+                                  (continued-fraction-map (sref this (- n 1)))))
+          an (make-instance 'infinite+-sequence
+                            :fill-strategy :sequential
+                            :generating-function
+                            (lambda (this n) (series-truncate (sref alphan n))))))
   (setup-continued-fraction-approx-fractions cf))
 
 (declaim (inline setup-continued-fraction-approx-fractions approx-helper))
 
-(defun approx-helper (coefficients &optional (type 'polynomial))
-  (make-lazy-array (:start ((zero type) (one type))
-                           :index-var n)
-    (+ (* (lazy-aref coefficients (- n 2))
-          (aref this (- n 1)))
-       (aref this (- n 2)))))
+(defun approx-helper (coefficients &optional (start 0) )
+  (make-instance 'infinite+-sequence
+                 :fill-strategy :sequential
+                 :start start
+                 :data+ (vector 0 1)
+                 :generating-function
+                 (lambda (this n)
+                   (+ (* (sref coefficients n) (sref this (- n 1)))
+                      (sref this (- n 2))))))
 
 (defun setup-continued-fraction-approx-fractions (cf)
   (with-slots (approx-numerators approx-denominators) cf
-    (setf approx-numerators (lazy-array-drop
-                             (approx-helper (partial-quotients cf))
-                             2)
-          approx-denominators (lazy-array-drop
-                               (approx-helper (lazy-array-drop
-                                               (partial-quotients cf) 1))
-                               1))))
+    (setf approx-numerators (approx-helper (partial-quotients cf) -2) 
+          approx-denominators (approx-helper (partial-quotients cf) -1))))
 
 
 ;; TODO move this to a more suitable place (like ol-utils)??
@@ -109,7 +114,7 @@ there is one."
   (with-cf continued-fraction
     (iter (for i from 1 to length-bound)
           (progress-event)
-          (when (= alpha0 (lazy-aref alphan i))
+          (when (= alpha0 (sref alphan i))
             (return i))
           (finally (return nil)))))
 
@@ -119,7 +124,7 @@ there is one."
 there is one."
   (with-cf continued-fraction
     (iter (for i from 1 to length-bound)
-          (for alphai next (lazy-aref alphan i))
+          (for alphai next (sref alphan i))
           (for gamma next (/ (leading-coefficient alphai)
                              (leading-coefficient alpha0)))
           (progress-event)
