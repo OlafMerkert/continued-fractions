@@ -33,21 +33,30 @@
       (error "got a square polynomial, cf expansion is trivial."))
     (let ((a0 (series-truncate starting)))
       ;; the main calculations
-      (setf an (make-lazy-array (:start (a0) :index-var n)
-                 (/ (+ (lazy-aref rn n) a0)
-                    (lazy-aref sn n)))
-            rn (make-lazy-array (:start ((zero 'polynomial)) :index-var n)
-                 (let ((n-1 (- n 1)))
-                   (- (* (lazy-aref sn n-1)
-                         (lazy-aref an n-1))
-                      (aref this n-1))))
-            sn (make-lazy-array (:start ((one 'polynomial)) :index-var n)
-                 (/ (- d (expt (lazy-aref rn n) 2))
-                    (aref this (- n 1))))))
+      (setf an (make-instance 'infinite+-sequence
+                              :fill-strategy :sequential
+                              :data+ (vector a0)
+                              :generating-function
+                              (lambda (this n) (/ (+ (sref rn n) a0) (sref sn n))))
+            rn (make-instance 'infinite+-sequence :data+ (vector 0)
+                              :fill-strategy :sequential
+                              :generating-function
+                              (lambda (this n)
+                                (let ((n-1 (- n 1)))
+                                  (- (* (sref sn n-1) (sref an n-1)) (sref this n-1)))))
+            sn (make-instance 'infinite+-sequence
+                              :fill-strategy :sequential
+                              :data+ (vector 1)
+                              :generating-function
+                              (lambda (this n)
+                                (/ (- d (expt (sref rn n) 2)) (sref this (- n 1)))))))
     ;; additional setup
-    (setf complete-quotients (make-lazy-array (:index-var n)
-                               (/ (+ (lazy-aref rn n) starting)
-                                  (lazy-aref sn n))))
+    (setf complete-quotients (make-instance 'infinite+-sequence
+                                            :fill-strategy :sequential
+                                            :data+ (vector)
+                                            :generating-function
+                                            (lambda (this n)
+                                              (/ (+ (sref rn n) starting) (sref sn n)))))
     (setup-continued-fraction-approx-fractions cf)))
 
 
@@ -58,7 +67,7 @@
   (with-cf2 continued-fraction
     (iter (for i from 1 to length-bound)
           (progress-event)
-          (when (one-p (lazy-aref sn i))
+          (when (one-p (sref sn i))
             (return i))
           (finally (return nil)))))
 
@@ -69,8 +78,8 @@
   (with-cf2 continued-fraction
     (iter (for i from 1 to length-bound)
           (progress-event)
-          (when (<= (degree (lazy-aref sn i)) 0)
-            (return (values i (lazy-aref sn i))))
+          (when (<= (degree (sref sn i)) 0)
+            (return (values i (sref sn i))))
           (finally (return nil)))))
 
 ;;; for deg 4, we can just check a point on an elliptic curve
