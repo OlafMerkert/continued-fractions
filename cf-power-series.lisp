@@ -68,16 +68,10 @@
                (alphan complete-quotients)
                (an partial-quotients))
       cf
-    (setf alphan (make-instance 'infinite+-sequence
-                                :fill-strategy :sequential
-                                :data+ (vector starting)
-                                :generating-function
-                                (lambda (this n)
-                                  (continued-fraction-map (sref this (- n 1)))))
-          an (make-instance 'infinite+-sequence
-                            :fill-strategy :sequential
-                            :generating-function
-                            (lambda (this n) (series-truncate (sref alphan n))))))
+    (setf alphan (infseq (vector starting) (n)
+                   (continued-fraction-map (sref this (- n 1))))
+          an (infseq nil (n)
+               (series-truncate (sref alphan n)))))
   (setup-continued-fraction-approx-fractions cf))
 
 (declaim (inline setup-continued-fraction-approx-fractions approx-helper))

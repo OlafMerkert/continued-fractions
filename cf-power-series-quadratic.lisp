@@ -43,32 +43,18 @@
     (let* ((sqrt-d (sqrt d))
            (bbrd (* b c sqrt-d)))
       ;; first setup partial and complete quotients
-      (setf an (make-instance 'infinite+-sequence
-                              :fill-strategy :sequential
-                              :generating-function
-                              (lambda (this n) (series-truncate (sref alphan n))))
-            alphan (make-instance 'infinite+-sequence
-                                  :fill-strategy :sequential
-                                  :generating-function
-                                  (lambda (this n) (/ (+ (sref rn n) bbrd) (sref sn n))))
+      (setf an (infseq nil (n) (series-truncate (sref alphan n)))
+            alphan (infseq nil (n)
+                     (/ (+ (sref rn n) bbrd) (sref sn n)))
             ;; then come the main calculations
-            rn (make-instance 'infinite+-sequence
-                              :fill-strategy :sequential
-                              :data+ (vector (* a c))
-                              :generating-function
-                              (lambda (this n)
-                                (bind-seq (rn sn an) (- n 1)
-                                  (- (* sn an) rn))))
-
-            sn (make-instance 'infinite+-sequence
-                              :fill-strategy :sequential
-                              :data+ (vector (expt c 2))
-                              :generating-function
-                              (lambda (this n)
-                                (bind-seq (rn sn tn an) (- n 1)
-                                  (+ (/ (- (* d (expt tn 2)) (expt rn 2)) sn)
-                                     (* 2 rn an)
-                                     (* -1 sn (expt an 2))))))
+            rn (infseq (vector (* a c)) (n)
+                 (bind-seq (rn sn an) (- n 1)
+                   (- (* sn an) rn)))
+            sn (infseq (vector (expt c 2)) (n)
+                 (bind-seq (rn sn tn an) (- n 1)
+                   (+ (/ (- (* d (expt tn 2)) (expt rn 2)) sn)
+                      (* 2 rn an)
+                      (* -1 sn (expt an 2)))))
             ;; finally, provide `starting'
             starting (sref alphan 0))))
   (setup-continued-fraction-approx-fractions cf))

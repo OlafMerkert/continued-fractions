@@ -46,16 +46,9 @@ non-negative degree."
                (alphan complete-quotients)
                (an partial-quotients))
       cf
-    (setf alphan (make-instance 'infinite-sequence:infinite+-sequence
-                                :fill-strategy :sequential
-                                :data+ (vector starting)
-                                :generating-function
-                                (lambda (this n)
-                                  (alternative-continued-fraction-map
-                                   (infinite-sequence:sref this (- n 1)))))
-          an (make-instance 'infinite-sequence:infinite+-sequence
-                            :fill-strategy :sequential
-                            :generating-function
-                            (lambda (this n)
-                              (series-first-term (infinite-sequence:sref alphan n))))))
+    (setf alphan (infinite-sequence:infseq (vector starting) (n)
+                   (alternative-continued-fraction-map
+                    (infinite-sequence:sref this (- n 1))))
+          an (infinite-sequence:infseq nil (n)
+               (series-first-term (infinite-sequence:sref alphan n)))))
   (setup-continued-fraction-approx-fractions cf))

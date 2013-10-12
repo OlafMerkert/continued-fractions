@@ -33,30 +33,16 @@
       (error "got a square polynomial, cf expansion is trivial."))
     (let ((a0 (series-truncate starting)))
       ;; the main calculations
-      (setf an (make-instance 'infinite+-sequence
-                              :fill-strategy :sequential
-                              :data+ (vector a0)
-                              :generating-function
-                              (lambda (this n) (/ (+ (sref rn n) a0) (sref sn n))))
-            rn (make-instance 'infinite+-sequence :data+ (vector 0)
-                              :fill-strategy :sequential
-                              :generating-function
-                              (lambda (this n)
-                                (let ((n-1 (- n 1)))
-                                  (- (* (sref sn n-1) (sref an n-1)) (sref this n-1)))))
-            sn (make-instance 'infinite+-sequence
-                              :fill-strategy :sequential
-                              :data+ (vector 1)
-                              :generating-function
-                              (lambda (this n)
-                                (/ (- d (expt (sref rn n) 2)) (sref this (- n 1)))))))
+      (setf an (infseq (vector a0) (n)
+                 (/ (+ (sref rn n) a0) (sref sn n)))
+            rn (infseq (vector 0) (n)
+                 (let ((n-1 (- n 1)))
+                   (- (* (sref sn n-1) (sref an n-1)) (sref this n-1))))
+            sn (infseq (vector 1) (n)
+                 (/ (- d (expt (sref rn n) 2)) (sref this (- n 1))))))
     ;; additional setup
-    (setf complete-quotients (make-instance 'infinite+-sequence
-                                            :fill-strategy :sequential
-                                            :data+ (vector)
-                                            :generating-function
-                                            (lambda (this n)
-                                              (/ (+ (sref rn n) starting) (sref sn n)))))
+    (setf complete-quotients (infseq (vector) (n)
+                               (/ (+ (sref rn n) starting) (sref sn n))))
     (setup-continued-fraction-approx-fractions cf)))
 
 
