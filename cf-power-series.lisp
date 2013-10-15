@@ -68,9 +68,9 @@
                (alphan complete-quotients)
                (an partial-quotients))
       cf
-    (setf alphan (infseq (vector starting) (n)
+    (setf alphan (inf+seq (vector starting) (n)
                    (continued-fraction-map (sref this (- n 1))))
-          an (infseq nil (n)
+          an (inf+seq nil (n)
                (series-truncate (sref alphan n)))))
   (setup-continued-fraction-approx-fractions cf))
 
@@ -80,7 +80,7 @@
   (make-instance 'infinite+-sequence
                  :fill-strategy :sequential
                  :start start
-                 :data+ (vector 0 1)
+                 :data (vector 0 1)
                  :generating-function
                  (lambda (this n)
                    (+ (* (sref coefficients n) (sref this (- n 1)))

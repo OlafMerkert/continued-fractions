@@ -43,14 +43,14 @@
     (let* ((sqrt-d (sqrt d))
            (bbrd (* b c sqrt-d)))
       ;; first setup partial and complete quotients
-      (setf an (infseq nil (n) (series-truncate (sref alphan n)))
-            alphan (infseq nil (n)
+      (setf an (inf+seq nil (n) (series-truncate (sref alphan n)))
+            alphan (inf+seq nil (n)
                      (/ (+ (sref rn n) bbrd) (sref sn n)))
             ;; then come the main calculations
-            rn (infseq (vector (* a c)) (n)
+            rn (inf+seq (vector (* a c)) (n)
                  (bind-seq (rn sn an) (- n 1)
                    (- (* sn an) rn)))
-            sn (infseq (vector (expt c 2)) (n)
+            sn (inf+seq (vector (expt c 2)) (n)
                  (bind-seq (rn sn tn an) (- n 1)
                    (+ (/ (- (* d (expt tn 2)) (expt rn 2)) sn)
                       (* 2 rn an)
