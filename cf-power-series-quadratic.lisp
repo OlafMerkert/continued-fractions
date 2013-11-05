@@ -13,11 +13,11 @@
    (c :initarg :c 
       :reader c)
    (rn :reader rn)
-   (sn :reader sn)
-   (tn :reader tn))
+   (sn :reader sn))
   (:documentation "Given (/ (+ a (* b (sqrt d))) c), we can easily
   show that all complete quotients will have the same shape, here
-  written as (/ (+ rn (* tn (sqrt d))) sn)."))
+  written as (/ (+ rn (* b (sqrt d))) sn) after multiplying a,b,c with
+  an appropriate divisor of c."))
 
 (defmacro with-cf2* (continued-fraction &body body)
   `(with-cf ,continued-fraction
@@ -27,8 +27,7 @@
      (with-accessors ((d radicand)
                       (a a) (b b) (c c)
                       (rn rn)
-                      (sn sn)
-                      (tn tn))
+                      (sn sn))
          cf
        ,@body)))
 
@@ -40,21 +39,26 @@
                (an partial-quotients)
                rn sn)
       cf
+    ;; first normalise the coefficients, s.t. c | b^2 d - a^2
+    (let ((g (/ c (ggt c (^ (ggt a b) 2)))))
+      (setf a (* g a)
+            b (* g b)
+            c (* g c)))
     (let* ((sqrt-d (sqrt d))
-           (bbrd (* b c sqrt-d)))
+           (b-sqrt-d (* b sqrt-d))
+           (b2d (* (^ b 2) d)))
       ;; first setup partial and complete quotients
       (setf an (inf+seq nil (n) (series-truncate (sref alphan n)))
             alphan (inf+seq nil (n)
-                     (/ (+ (sref rn n) bbrd) (sref sn n)))
+                     (/ (+ (sref rn n) b-sqrt-d)
+                        (sref sn n)))
             ;; then come the main calculations
-            rn (inf+seq (vector (* a c)) (n)
+            rn (inf+seq (vector a) (n)
                  (bind-seq (rn sn an) (- n 1)
                    (- (* sn an) rn)))
-            sn (inf+seq (vector (expt c 2)) (n)
-                 (bind-seq (rn sn tn an) (- n 1)
-                   (+ (/ (- (* d (expt tn 2)) (expt rn 2)) sn)
-                      (* 2 rn an)
-                      (* -1 sn (expt an 2)))))
+            sn (inf+seq (vector c) (n)
+                 (bind-seq (rn sn an) (- n 1)
+                   (/ (- b2d (^ (- (* an sn) rn) 2)) sn)))
             ;; finally, provide `starting'
             starting (sref alphan 0))))
   (setup-continued-fraction-approx-fractions cf))
