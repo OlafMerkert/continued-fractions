@@ -48,7 +48,7 @@ non-negative degree."
       cf
     (setf alphan (infinite-sequence:inf+seq (vector starting) (n)
                    (alternative-continued-fraction-map
-                    (infinite-sequence:sref this (- n 1))))
+                    (this (- n 1))))
           an (infinite-sequence:inf+seq nil (n)
                (series-first-term (infinite-sequence:sref alphan n)))))
   (setup-continued-fraction-approx-fractions cf))

@@ -70,7 +70,7 @@
                (an partial-quotients))
       cf
     (setf alphan (inf+seq (vector starting) (n)
-                   (continued-fraction-map (sref this (- n 1))))
+                   (continued-fraction-map (this (- n 1))))
           an (inf+seq nil (n)
                (series-truncate (sref alphan n)))))
   (setup-continued-fraction-approx-fractions cf))
@@ -83,9 +83,9 @@
                  :start start
                  :data (vector 0 1)
                  :generating-function
-                 (lambda (this n)
-                   (+ (* (sref coefficients n) (sref this (- n 1)))
-                      (sref this (- n 2))))))
+                 (flambda (this n)
+                   (+ (* (sref coefficients n) (this (- n 1)))
+                      (this (- n 2))))))
 
 (defun setup-continued-fraction-approx-fractions (cf)
   (with-slots (approx-numerators approx-denominators) cf
