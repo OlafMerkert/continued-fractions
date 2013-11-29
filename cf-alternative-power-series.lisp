@@ -29,7 +29,7 @@ non-negative degree."
   (if (<= 0 (degree series))
       (make-instance 'power-series
                      :degree (- (degree series) 1)
-                     :coefficients (lazy-array-drop (coefficients series) 1))
+                     :coefficients (ins:shift (ins:subsequence (coefficients series) 1) -1))
       series))
 
 ;;; then use this to define an alternative cf map
