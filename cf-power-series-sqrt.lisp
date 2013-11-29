@@ -34,7 +34,7 @@
     (let ((a0 (series-truncate starting)))
       ;; the main calculations
       (setf an (inf+seq (vector a0) (n)
-                 (/ (+ (sref rn n) a0) (sref sn n)))
+                 (div (+ (sref rn n) a0) (sref sn n)))
             rn (inf+seq (vector 0) (n)
                  (let ((n-1 (- n 1)))
                    (- (* (sref sn n-1) (sref an n-1)) (this n-1))))
