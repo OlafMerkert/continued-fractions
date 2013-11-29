@@ -48,15 +48,16 @@
            (b-sqrt-d (* b sqrt-d))
            (b2d (* (^ b 2) d)))
       ;; first setup partial and complete quotients
-      (setf an (inf+seq nil (n) (series-truncate (sref alphan n)))
-            alphan (inf+seq nil (n)
+      (setf an (inf+seq nil (n) :cf-quad-an
+                 (series-truncate (sref alphan n)))
+            alphan (inf+seq nil (n) :cf-quad-alphan
                      (/ (+ (sref rn n) b-sqrt-d)
                         (sref sn n)))
             ;; then come the main calculations
-            rn (inf+seq (vector a) (n)
+            rn (inf+seq (vector a) (n) :cf-quad-rn
                  (bind-seq (rn sn an) (- n 1)
                    (- (* sn an) rn)))
-            sn (inf+seq (vector c) (n)
+            sn (inf+seq (vector c) (n) :cf-quad-sn
                  (bind-seq (rn sn an) (- n 1)
                    (/ (- b2d (^ (- (* an sn) rn) 2)) sn)))
             ;; finally, provide `starting'

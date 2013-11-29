@@ -33,15 +33,15 @@
       (error "got a square polynomial, cf expansion is trivial."))
     (let ((a0 (series-truncate starting)))
       ;; the main calculations
-      (setf an (inf+seq (vector a0) (n)
+      (setf an (inf+seq (vector a0) (n) :cf-sqrt-an
                  (div (+ (sref rn n) a0) (sref sn n)))
-            rn (inf+seq (vector 0) (n)
+            rn (inf+seq (vector 0) (n) :cf-sqrt-rn
                  (let ((n-1 (- n 1)))
                    (- (* (sref sn n-1) (sref an n-1)) (this n-1))))
-            sn (inf+seq (vector 1) (n)
+            sn (inf+seq (vector 1) (n) :cf-sqrt-sn
                  (/ (- d (expt (sref rn n) 2)) (this (- n 1))))))
     ;; additional setup
-    (setf complete-quotients (inf+seq (vector) (n)
+    (setf complete-quotients (inf+seq (vector) (n) :cf-sqrt-alphan
                                (/ (+ (sref rn n) starting) (sref sn n))))
     (setup-continued-fraction-approx-fractions cf)))
 

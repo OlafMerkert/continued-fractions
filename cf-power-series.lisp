@@ -69,16 +69,17 @@
                (alphan complete-quotients)
                (an partial-quotients))
       cf
-    (setf alphan (inf+seq (vector starting) (n)
+    (setf alphan (inf+seq (vector starting) (n) :cf-alphan
                    (continued-fraction-map (this (- n 1))))
-          an (inf+seq nil (n)
+          an (inf+seq nil (n) :cf-an
                (series-truncate (sref alphan n)))))
   (setup-continued-fraction-approx-fractions cf))
 
 (declaim (inline setup-continued-fraction-approx-fractions approx-helper))
 
-(defun approx-helper (coefficients &optional (start 0) )
+(defun approx-helper (coefficients &optional (start 0) name)
   (make-instance 'infinite+-sequence
+                 :name name
                  :fill-strategy :sequential
                  :start start
                  :data (vector 0 1)
@@ -89,8 +90,8 @@
 
 (defun setup-continued-fraction-approx-fractions (cf)
   (with-slots (approx-numerators approx-denominators) cf
-    (setf approx-numerators (approx-helper (partial-quotients cf) -2) 
-          approx-denominators (approx-helper (partial-quotients cf) -1))))
+    (setf approx-numerators (approx-helper (partial-quotients cf) -2 :cf-pn) 
+          approx-denominators (approx-helper (partial-quotients cf) -1 :cf-qn))))
 
 
 ;; TODO move this to a more suitable place (like ol-utils)??
