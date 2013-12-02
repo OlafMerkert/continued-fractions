@@ -35,6 +35,7 @@
                 :s s)))
 
 (defun square-root-continued-fraction-quasi-period-length (d degree-bound)
+  ;; todo rewrite using iterate or something else
   (loop
      for x = (step-square-root-continued-fraction (init-square-root-continued-fraction d)) then (step-square-root-continued-fraction x)
      summing (degree (square-root-continued-fraction-a x)) into deg-p
