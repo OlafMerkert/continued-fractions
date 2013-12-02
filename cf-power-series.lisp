@@ -46,8 +46,7 @@
    (complete-quotients :reader complete-quotients)
    (partial-quotients  :reader partial-quotients)
    (approx-numerators   :reader approx-numerators)
-   (approx-denominators :reader approx-denominators))
-  (:documentation "TODO"))
+   (approx-denominators :reader approx-denominators)))
 
 (defmacro with-cf (continued-fraction &body body)
   `(let ((cf ,continued-fraction))
@@ -92,16 +91,6 @@
   (with-slots (approx-numerators approx-denominators) cf
     (setf approx-numerators (approx-helper (partial-quotients cf) -2 :cf-pn) 
           approx-denominators (approx-helper (partial-quotients cf) -1 :cf-qn))))
-
-
-;; TODO move this to a more suitable place (like ol-utils)??
-(defparameter *progress-stream* *standard-output*)
-
-(declaim (inline progress-event))
-
-(defun progress-event ()
-  (princ "." *progress-stream*))
-
 
 (defmethod find-pure-period-length ((continued-fraction continued-fraction)
                                     &key (length-bound 40))

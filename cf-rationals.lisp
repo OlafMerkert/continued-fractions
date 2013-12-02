@@ -48,8 +48,7 @@
 
 
 (defclass continued-fraction-rational (continued-fraction)
-  ()
-  (:documentation "TODO"))
+  ())
 
 (defmethod setup-continued-fraction ((cf continued-fraction-rational))
   (with-slots (starting

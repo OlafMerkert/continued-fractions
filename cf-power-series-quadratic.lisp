@@ -63,9 +63,6 @@
             ;; finally, provide `starting'
             starting (sref alphan 0))))
   (setup-continued-fraction-approx-fractions cf))
-;;; TODO check these formulas for mistakes
-
-;;; TODO check whether we need to cover additional canceling issues
 
 
 (defmethod -> ((target-type (eql 'finite-fields:integer-mod)) (cf sqrt-continued-fraction) &key (mod 3))

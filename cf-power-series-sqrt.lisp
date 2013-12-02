@@ -6,7 +6,7 @@
    (rn :reader rn)
    (sn :reader sn))
   (:documentation "We know the complete quotients of (sqrt radicand)
-  will all be of the form (/ (+ rn (sqrt radicand) sn). TODO"))
+  will all be of the form (/ (+ rn (sqrt radicand) sn)."))
 
 (defmacro with-cf2 (continued-fraction &body body)
   `(with-cf ,continued-fraction
