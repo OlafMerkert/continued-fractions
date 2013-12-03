@@ -50,7 +50,7 @@
     (setup-continued-fraction-approx-fractions cf)))
 
 
-(defmethod find-pure-period-length ((continued-fraction sqrt-continued-fraction)
+#|(defmethod find-pure-period-length ((continued-fraction sqrt-continued-fraction)
                                      &key (length-bound 40))
   "In fact, (sqrt radicand) has not a pure cf expansion, but a0
   + (sqrt radicand) does, and the period can be detected very easily."
@@ -59,7 +59,13 @@
           (progress-event)
           (when (one-p (sref sn i))
             (return i))
-          (finally (return nil)))))
+(finally (return nil)))))|#
+
+(defmethod find-pure-period-length ((continued-fraction sqrt-continued-fraction)
+                                    &key (length-bound 40))
+  (mvbind (qp-len sn) (find-pure-quasiperiod-length continued-fraction :length-bound length-bound)
+    (when qp-len
+      (if (one-p sn) qp-len (cl:* 2 qp-len)))))
 
 (defmethod find-pure-quasiperiod-length ((continued-fraction sqrt-continued-fraction)
                                          &key (length-bound 40))
