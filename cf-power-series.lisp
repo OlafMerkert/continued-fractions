@@ -99,7 +99,7 @@
 there is one."
   (with-cf continued-fraction
     (iter (for i from 1 to length-bound)
-          (progress-event)
+          #|(progress-event)|#
           (when (= alpha0 (sref alphan i))
             (return i))
           (finally (return nil)))))
@@ -113,7 +113,7 @@ there is one."
           (for alphai next (sref alphan i))
           (for gamma next (/ (leading-coefficient alphai)
                              (leading-coefficient alpha0)))
-          (progress-event)
+          #|(progress-event)|#
           (when (= (* (make-constant-series gamma) alpha0) alphai)
             (return (values i gamma)))
           (finally (return nil)))))

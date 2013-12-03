@@ -73,7 +73,7 @@
   + (sqrt radicand) does, and the quasiperiod can be detected very easily."
   (with-cf2 continued-fraction
     (iter (for i from 1 to length-bound)
-          (progress-event)
+          #|(progress-event)|#
           (when (<= (degree (sref sn i)) 0)
             (return (values i (sref sn i))))
           (finally (return nil)))))
