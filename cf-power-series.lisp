@@ -32,7 +32,8 @@
    #:check-torsion-divisor
    #:quadratic-continued-fraction
    #:with-cf2*
-   #:tn))
+   #:tn
+   #:square-radicand))
 
 (in-package :continued-fractions-power-series)
 

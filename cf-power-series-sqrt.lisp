@@ -19,6 +19,10 @@
          cf
        ,@body)))
 
+(define-condition square-radicand ()
+  ((sqrt :initarg :sqrt
+         :initform nil)))
+
 (defmethod setup-continued-fraction ((cf sqrt-continued-fraction))
   (with-slots ((d radicand)
                starting
@@ -30,7 +34,7 @@
     (setf starting (sqrt d))
     ;; detect when we have a square
     (when (typep starting 'polynomial)
-      (error "got a square polynomial, cf expansion is trivial."))
+      (error 'square-radicand :sqrt starting))
     (let ((a0 (series-truncate starting)))
       ;; the main calculations
       (setf an (inf+seq (vector a0) (n) :cf-sqrt-an
