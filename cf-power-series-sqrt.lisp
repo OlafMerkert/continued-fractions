@@ -43,7 +43,7 @@
                  (let ((n-1 (- n 1)))
                    (- (* (sref sn n-1) (sref an n-1)) (this n-1))))
             sn (inf+seq (vector 1) (n) :cf-sqrt-sn
-                 (/ (- d (expt (sref rn n) 2)) (this (- n 1))))))
+                        (/ (- d (expt (sref rn n) 2)) (this (- n 1))))))
     ;; additional setup
     (setf complete-quotients (inf+seq (vector) (n) :cf-sqrt-alphan
                                (/ (+ (sref rn n) starting) (sref sn n))))
@@ -117,3 +117,12 @@
 (defmethod -> ((target-type (eql 'finite-fields:integer-mod)) (cf sqrt-continued-fraction) &key (mod 3))
   (make-instance 'sqrt-continued-fraction
                  :radicand (-> 'finite-fields:integer-mod (radicand cf) :mod mod)))
+
+;;; compute the order of the points at infinity for the divisors
+;;; corresponding to p_n + y q_n
+(defmethod phin-infinite-order ((continued-fraction sqrt-continued-fraction) n)
+  (with-cf2 continued-fraction
+    (let* ((yqn (gm:* alpha0 (sref qn n)))
+           (phin+ (simplify (gm:+ (sref pn n) yqn)))
+           (phin- (simplify (gm:- (sref pn n) yqn))))
+      (list (- (degree phin+)) (- (degree phin-))))))

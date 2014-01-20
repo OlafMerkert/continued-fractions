@@ -33,7 +33,8 @@
    #:quadratic-continued-fraction
    #:with-cf2*
    #:tn
-   #:square-radicand))
+   #:square-radicand
+   #:phin-infinite-order))
 
 (in-package :continued-fractions-power-series)
 
