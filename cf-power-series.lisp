@@ -50,6 +50,12 @@
    (approx-numerators   :reader approx-numerators)
    (approx-denominators :reader approx-denominators)))
 
+(defmethod gm:simplified-p ((cf continued-fraction)) t)
+
+(defmethod gm:generic-= ((cf1 continued-fraction) (cf2 continued-fraction))
+  (gm:generic-= (starting cf1) (starting cf2)))
+
+
 (defmacro with-cf (continued-fraction &body body)
   `(let ((cf ,continued-fraction))
      (with-accessors ((alpha0  starting)
