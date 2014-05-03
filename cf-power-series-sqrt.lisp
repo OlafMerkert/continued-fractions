@@ -3,10 +3,22 @@
 (defclass sqrt-continued-fraction (continued-fraction)
   ((radicand :initarg :radicand
              :reader radicand)
-   (rn :reader rn)
+   (sqrt-radicand :reader sqrt-radicand)
+   (t0 :initarg :t0
+         :initform 0
+         :reader t0)
+   (s0 :initarg :s0
+         :initform 1
+         :reader s0)
+   (tn :reader tn)
    (sn :reader sn))
   (:documentation "We know the complete quotients of (sqrt radicand)
-  will all be of the form (/ (+ rn (sqrt radicand) sn)."))
+  will all be of the form (/ (+ sqrt-radicand tn (sqrt radicand) sn)."))
+
+(defmethod gm:generic-= ((cf1 sqrt-continued-fraction) (cf2 sqrt-continued-fraction))
+  (and (gm:= (radicand cf1) (radicand cf2))
+       (gm:= (t0 cf1) (t0 cf2))
+       (gm:= (s0 cf1) (s0 cf2))))
 
 (defmacro with-cf2 (continued-fraction &body body)
   `(with-cf ,continued-fraction
@@ -14,8 +26,9 @@
        (error "Expected SQRT-CONTINUED-FRACTION, but probably only got
        a CONTINUED-FRACTION."))
      (with-accessors ((d radicand)
-                      (rn rn)
-                      (sn sn))
+                      (tn tn)
+                      (sn sn)
+                      (a sqrt-radicand))
          cf
        ,@body)))
 
@@ -23,30 +36,54 @@
   ((sqrt :initarg :sqrt
          :initform nil)))
 
+(declaim (inline compute-complete-quotient compute-partial-quotient))
+
+(defun compute-complete-quotient (a tn sn sqrt-d)
+  (/ (+ a tn sqrt-d) sn))
+
+(defun compute-partial-quotient (a2 tn sn)
+  (div (+ a2 tn) sn))
+
 (defmethod setup-continued-fraction ((cf sqrt-continued-fraction))
   (with-slots ((d radicand)
+               (a sqrt-radicand)
                starting
                complete-quotients
                (an partial-quotients)
-               rn
+               t0
+               s0
+               tn
                sn)
       cf
-    (setf starting (sqrt d))
-    ;; detect when we have a square
-    (when (typep starting 'polynomial)
-      (error 'square-radicand :sqrt starting))
-    (let ((a0 (series-truncate starting)))
+    ;; todo first step: normalise t0 and s0 s.t. s0 | d - r0^2
+
+    ;; second step: compute (sqrt d) and polynomial part `a'
+    (let ((sqrt-d (sqrt d))
+          a2
+          d-a^2)
+      (setf a (series-truncate sqrt-d)
+            starting (compute-complete-quotient a t0 s0 sqrt-d)
+            a2 (* 2 a)
+            d-a^2 (- d (^ a 2)))
+      ;; detect when we have a square
+      (when (typep sqrt-d 'polynomial)
+        (error 'square-radicand :sqrt sqrt-d))
       ;; the main calculations
-      (setf an (inf+seq (vector a0) (n) :cf-sqrt-an
-                 (div (+ (sref rn n) a0) (sref sn n)))
-            rn (inf+seq (vector 0) (n) :cf-sqrt-rn
-                 (let ((n-1 (- n 1)))
-                   (- (* (sref sn n-1) (sref an n-1)) (this n-1))))
+      (setf an (inf+seq (vector) (n) :cf-sqrt-an
+                        (compute-partial-quotient a2 (sref tn n) (sref sn n)))
+            tn (inf+seq (vector 0) (n) :cf-sqrt-tn
+                        (let* ((n-1 (- n 1))
+                               (tp (this n-1))
+                               (sp (sref sn n-1)))
+                          (- (if (< (degree tp) (degree sp))
+                                 (divr a2 sp)
+                                 (divr (+ a2 tp) sp)))))
             sn (inf+seq (vector 1) (n) :cf-sqrt-sn
-                        (/ (- d (expt (sref rn n) 2)) (this (- n 1))))))
-    ;; additional setup
-    (setf complete-quotients (inf+seq (vector) (n) :cf-sqrt-alphan
-                               (/ (+ (sref rn n) starting) (sref sn n))))
+                        (let ((tn (sref tn n)))
+                          (div (- d-a^2 (* a2 tn) (^ tn 2)) (this (- n 1))))))
+      ;; additional setup
+      (setf complete-quotients (inf+seq (vector starting) (n) :cf-sqrt-alphan
+                                        (compute-complete-quotient a (sref tn n) (sref sn n) sqrt-d))))
     (setup-continued-fraction-approx-fractions cf)))
 
 

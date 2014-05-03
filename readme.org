@@ -1,0 +1,4 @@
+* Tasks
+** TODO normalise t0 and s0
+   [2014-05-03 Sa 11:09]
+   [[file:~/Projekte/continued-fractions/cf-power-series-sqrt.lisp::%3B%3B%20todo%20first%20step:%20normalise%20t0%20and%20s0%20s.t.%20s0%20|%20d%20-%20r0^2][file:~/Projekte/continued-fractions/cf-power-series-sqrt.lisp::;; todo first step: normalise t0 and s0 s.t. s0 | d - r0^2]]
